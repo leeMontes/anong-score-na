@@ -351,6 +351,8 @@ h2 { margin: 6px 0 0; font-size: 20px; font-weight: 700; letter-spacing: -.02em;
 /* Sessions archive */
 .sessions-view { padding: 40px 0 28px; }
 .sessions-list { display: grid; gap: 24px; }
+.alltime-view, .info-view { padding: 40px 0 28px; }
+.info-credit { margin: 6px 0 0; text-align: center; color: var(--text-3); font-size: 12px; font-weight: 500; }
 .session-group { display: grid; gap: 12px; }
 .session-date { margin: 0; color: var(--text); font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
 .session-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 18px; border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow-card); cursor: pointer; text-align: left; transition: transform .15s ease, box-shadow .15s ease; }
