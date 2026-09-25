@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#101713">
+    <meta name="description" content="Anong Score Na? A courtside pickleball scorecard and match tracker.">
+    <title>Anong Score Na? — Pickleball Scorecard</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#score" aria-label="Anong Score Na? home">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+          <span class="brand-name">Anong Score Na<span class="brand-period">?</span></span>
+        </a>
+        <nav class="main-nav" aria-label="Main navigation">
+          <button class="nav-button active" type="button" data-view="score-view"><span class="nav-icon">▣</span><span class="nav-label-full">Scorecard</span><span class="nav-label-short">Score</span></button>
+          <button class="nav-button" type="button" data-view="session-view"><span class="nav-icon">◎</span><span class="nav-label-full">Players &amp; matches</span><span class="nav-label-short">Players</span></button>
+          <button class="nav-button" type="button" data-view="sessions-view"><span class="nav-icon">◷</span><span class="nav-label-full">Sessions</span><span class="nav-label-short">Days</span></button>
+          <button class="nav-button" type="button" data-view="alltime-view"><span class="nav-icon">★</span><span class="nav-label-full">All Time</span><span class="nav-label-short">All Time</span></button>
+          <button class="nav-button" type="button" data-view="info-view"><span class="nav-icon">ⓘ</span><span class="nav-label-full">Info</span><span class="nav-label-short">Info</span></button>
+        </nav>
+        <div class="topbar-actions">
+          <button class="icon-button theme-button" id="theme-button" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+            <span aria-hidden="true" class="theme-icon">☾</span>
+          </button>
+          <button class="icon-button orientation-button" type="button" aria-label="Rotate screen" title="Rotate screen">
+            <span aria-hidden="true">⟳</span><span class="rotate-label">Rotate</span>
+          </button>
+          <button class="icon-button fullscreen-button" id="fullscreen-button" type="button" aria-label="Enter fullscreen" title="Enter fullscreen">
+            <span aria-hidden="true">⛶</span><span class="fs-label">Fullscreen</span>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="view score-view" id="score-view" aria-labelledby="score-heading">
+          <div class="score-intro">
+            <div>
+              <p class="eyebrow"><span class="live-dot"></span> COURTSIDE SCOREBOARD</p>
+              <h1 id="score-heading">Palo lang ng <span>palo</span></h1>
+            </div>
+            <div class="game-format">
+              <span class="format-label">GAME FORMAT</span>
+              <div class="segmented" role="group" aria-label="Game format">
+                <button type="button" class="format-button active" data-mode="doubles" aria-pressed="true">Doubles</button>
+                <button type="button" class="format-button" data-mode="singles" aria-pressed="false">Singles</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="scoreboard-wrap">
+            <div class="scoreboard-topline">
+              <span class="game-status"><span class="status-dot"></span><span id="status-text">GAME IN PROGRESS</span></span>
+              <span class="game-timer" id="game-timer" aria-label="Game time">00:00</span>
+            </div>
+            <div class="scoreboard" aria-label="Live score">
+              <section class="team-score left-team" aria-label="Left side score">
+                <div class="team-heading"><span class="team-side">LEFT SIDE</span><span class="serve-badge" id="left-serve-badge" hidden>● SERVING</span></div>
+                <button class="flap-score score-touch-target" id="left-score" type="button" data-score-tap="left" aria-label="Left side score: 0. Tap to add a point; two-finger tap to subtract.">00</button>
+                <div class="team-name" id="left-team-name">HOME</div>
+              </section>
+              <section class="service-panel" aria-label="Service number">
+                <span class="service-label">SERVER</span>
+                <button class="service-number" id="service-number" type="button" aria-label="Server 1. Tap to switch server.">1</button>
+                <span class="service-caption" id="service-caption">OF 2</span>
+                <span class="service-divider"></span>
+                <span class="score-call" id="score-call">0 — 0 — 1</span>
+                <span class="score-call-label">SCORE CALL</span>
+              </section>
+              <section class="team-score right-team" aria-label="Right side score">
+                <div class="team-heading"><span class="team-side">RIGHT SIDE</span><span class="serve-badge" id="right-serve-badge" hidden>● SERVING</span></div>
+                <button class="flap-score score-touch-target" id="right-score" type="button" data-score-tap="right" aria-label="Right side score: 0. Tap to add a point; two-finger tap to subtract.">00</button>
+                <div class="team-name" id="right-team-name">AWAY</div>
+              </section>
+            </div>
+            <div class="scoreboard-footer"><span>FIRST TO 11</span></div>
+          </div>
+
+          <div class="scoring-controls">
+            <section class="point-control" aria-label="Left side points">
+              <button class="point-button" type="button" data-score="left" data-change="-1" aria-label="Subtract one from left score">−</button>
+              <span class="point-help">LEFT POINTS</span>
+              <button class="point-button add-point" type="button" data-score="left" data-change="1" aria-label="Add one to left score">+</button>
+            </section>
+            <div class="center-controls">
+              <div class="serving-controls">
+                <span class="control-caption">SERVING SIDE</span>
+                <div class="serve-switch" role="group" aria-label="Select serving side">
+                  <button type="button" data-serving="left" aria-pressed="true">← Left</button>
+                  <button type="button" data-serving="right" aria-pressed="false">Right →</button>
+                </div>
+              </div>
+              <button class="server-toggle" id="server-toggle" type="button" aria-label="Switch to server 2">SERVER <strong>1</strong><span>↔</span><strong>2</strong></button>
+            </div>
+            <section class="point-control" aria-label="Right side points">
+              <button class="point-button" type="button" data-score="right" data-change="-1" aria-label="Subtract one from right score">−</button>
+              <span class="point-help">RIGHT POINTS</span>
+              <button class="point-button add-point" type="button" data-score="right" data-change="1" aria-label="Add one to right score">+</button>
+            </section>
+          </div>
+
+          <div class="score-actions">
+            <button class="text-button" id="undo-button" type="button" disabled><span aria-hidden="true">↶</span> Undo point</button>
+            <button class="text-button reset-button" id="reset-button" type="button"><span aria-hidden="true">⟲</span> Reset game</button>
+            <button class="text-button tester-button" id="tester-button" type="button"><span aria-hidden="true">▢</span> Score card tester</button>
+            <button class="primary-button finalize-button" id="finalize-button" type="button" hidden>Finalize match <span aria-hidden="true">↗</span></button>
+          </div>
+        </section>
+
+        <section class="view session-view" id="session-view" aria-labelledby="session-heading" hidden>
+          <div class="page-heading">
+            <p class="eyebrow"><span class="live-dot"></span> YOUR COURT SESSION</p>
+            <h1 id="session-heading">Players &amp; <span>matches.</span></h1>
+            <p class="page-description">Add your crew, draft a round robin, and keep track of every result.</p>
+          </div>
+
+          <div class="session-grid">
+            <div class="session-main">
+              <section class="panel players-panel">
+                <div class="panel-heading">
+                  <div><span class="step-label">01 / ROSTER</span><h2>Build your lineup</h2></div>
+                  <span class="count-pill" id="player-count">0 PLAYERS</span>
+                </div>
+                <form id="player-form" class="add-player-form">
+                  <label class="sr-only" for="player-name">Player name</label>
+                  <input id="player-name" name="player" type="text" maxlength="32" placeholder="Enter a player name" autocomplete="off" required>
+                  <button class="primary-button" type="submit">Add player <span aria-hidden="true">+</span></button>
+                </form>
+                <div class="player-list" id="player-list"></div>
+                <div class="draft-controls">
+                  <label class="select-wrap"><span class="sr-only">Match format</span>
+                    <select id="draft-mode" aria-label="Match format">
+                      <option value="doubles">Doubles · 2 vs 2</option>
+                      <option value="singles">Singles · 1 vs 1</option>
+                    </select>
+                  </label>
+                  <button class="primary-button draft-button" id="draft-button" type="button">Draft matches <span aria-hidden="true">↗</span></button>
+                </div>
+                <p class="form-hint" id="draft-hint">Doubles needs at least 4 players, with an even number in the roster.</p>
+              </section>
+
+              <section class="panel matches-panel">
+                <div class="panel-heading">
+                  <div><span class="step-label">02 / SCHEDULE</span><h2>Match schedule</h2></div>
+                  <div class="panel-heading-actions">
+                    <span class="count-pill" id="match-count">0 MATCHES</span>
+                    <button class="wrapup-button" id="wrapup-button" type="button">Wrap up day</button>
+                  </div>
+                </div>
+                <div class="matches-list" id="matches-list"></div>
+              </section>
+            </div>
+
+            <aside class="panel standings-panel">
+              <div class="panel-heading">
+                <div><span class="step-label">03 / LEADERBOARD</span><h2>Standings</h2></div>
+                <span class="trophy-mark" aria-hidden="true">✳</span>
+              </div>
+              <p class="standings-note">Ranked by win rate across finalized matches.</p>
+              <div class="standings-head"><span>PLAYER</span><span>W—L</span><span>WIN %</span></div>
+              <div class="standings-list" id="standings-list"></div>
+              <div class="standings-foot"><span class="live-dot"></span> UPDATED AFTER EACH MATCH</div>
+            </aside>
+          </div>
+          <footer class="app-footer">ANONG SCORE NA? <span>·</span> PLAY NICE. PLAY OFTEN.</footer>
+        </section>
+
+        <section class="view sessions-view" id="sessions-view" aria-labelledby="sessions-heading" hidden>
+          <div class="page-heading">
+            <p class="eyebrow"><span class="live-dot"></span> WRAPPED-UP DAYS</p>
+            <h1 id="sessions-heading">Sessions <span>archive.</span></h1>
+            <p class="page-description">Every wrapped-up day, with its match schedule and standings.</p>
+          </div>
+          <div class="sessions-list" id="sessions-list"></div>
+          <footer class="app-footer">ANONG SCORE NA? <span>·</span> PLAY NICE. PLAY OFTEN.</footer>
+        </section>
+
+        <section class="view alltime-view" id="alltime-view" aria-labelledby="alltime-heading" hidden>
+          <div class="page-heading">
+            <p class="eyebrow"><span class="live-dot"></span> EVERYTHING SO FAR</p>
+            <h1 id="alltime-heading">All Time <span>Leaderboard.</span></h1>
+            <p class="page-description">Combined record across every wrapped session.</p>
+          </div>
+          <section class="panel standings-panel">
+            <div class="standings-head standings-head-wide"><span>PLAYER</span><span>W—L</span><span>WIN %</span><span>GP</span></div>
+            <div class="standings-list" id="alltime-standings"></div>
+            <div class="standings-foot"><span class="live-dot"></span> TAP A PLAYER FOR DETAILS</div>
+          </section>
+          <footer class="app-footer">ANONG SCORE NA? <span>·</span> PLAY NICE. PLAY OFTEN.</footer>
+        </section>
+
+        <section class="view info-view" id="info-view" aria-labelledby="info-heading" hidden>
+          <div class="page-heading">
+            <p class="eyebrow"><span class="live-dot"></span> ABOUT ANONG SCORE NA?</p>
+            <h1 id="info-heading">How it <span>works.</span></h1>
+            <p class="page-description">Scoring, what each page does, and where your data lives.</p>
+          </div>
+          <div class="info-grid">
+            <section class="panel info-card">
+              <span class="step-label">01 / SCORING</span>
+              <h2>How scoring works</h2>
+              <ul class="info-list">
+                <li>Games go to <strong>11 points</strong> — the first side to reach 11 wins (no win-by-2).</li>
+                <li>When a side reaches 11 the game ends, and the higher score wins.</li>
+                <li><strong>Doubles:</strong> the middle shows <strong>Server 1 / 2</strong> — tap it to switch, and use the serving-side selector. <strong>Singles:</strong> one server (the number is hidden).</li>
+                <li><strong>Add points:</strong> tap a team's score (+1), <strong>two-finger tap</strong> (−1), or use the +/− buttons. Undo and Reset sit below.</li>
+                <li>The <strong>timer</strong> starts when a match starts and stops when it ends.</li>
+              </ul>
+            </section>
+            <section class="panel info-card">
+              <span class="step-label">02 / PAGES</span>
+              <h2>What each page does</h2>
+              <ul class="info-list">
+                <li><strong>Scorecard</strong> — live score, serve, and timer, plus fullscreen, rotate, and a “Score card tester” for a quick untied card.</li>
+                <li><strong>Players &amp; matches</strong> — add players, auto-draft a round robin, play and finalize matches, see live standings, and “Wrap up day”.</li>
+                <li><strong>Sessions</strong> — your archive of wrapped-up days, each with its schedule and standings.</li>
+                <li><strong>All Time</strong> — your combined record across every session.</li>
+                <li><strong>Info</strong> — this guide.</li>
+              </ul>
+            </section>
+            <section class="panel info-card">
+              <span class="step-label">03 / DATA</span>
+              <h2>Where your data is saved</h2>
+              <ul class="info-list">
+                <li>Everything is stored in your browser's <strong>localStorage</strong> — no account, no server, no cloud.</li>
+                <li>Storage keys: <code>rally-pickleball-v1</code> (players, matches, sessions, current game) and <code>anong-theme</code> (light/dark).</li>
+                <li>Data lives only on this device and browser. Clearing site data erases it, and it won't sync to other devices.</li>
+              </ul>
+            </section>
+          </div>
+          <footer class="app-footer">ANONG SCORE NA? <span>·</span> PLAY NICE. PLAY OFTEN.</footer>
+        </section>
+      </main>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <dialog class="result-dialog" id="result-dialog" aria-labelledby="result-title">
+        <div class="dialog-mark">✳</div>
+        <p class="eyebrow">MATCH COMPLETE</p>
+        <h2 id="result-title">Game point.</h2>
+        <p class="result-summary" id="result-summary"></p>
+        <div class="dialog-actions">
+          <button class="text-button" id="close-result" type="button">Keep playing</button>
+          <button class="primary-button" id="dialog-finalize" type="button">Finalize match <span aria-hidden="true">↗</span></button>
+          <button class="primary-button ghost" id="dialog-next" type="button" hidden>Finalize &amp; start next <span aria-hidden="true">→</span></button>
+        </div>
+      </dialog>
+
+      <dialog class="next-dialog" id="next-match-dialog" aria-labelledby="next-match-title">
+        <p class="eyebrow">NEXT MATCH</p>
+        <h2 id="next-match-title">Up next</h2>
+        <div class="next-matchup" id="next-matchup"></div>
+        <p class="next-mode" id="next-mode"></p>
+        <div class="dialog-actions">
+          <button class="text-button" id="next-cancel" type="button">Not now</button>
+          <button class="primary-button" id="next-start" type="button">Start match <span aria-hidden="true">↗</span></button>
+        </div>
+      </dialog>
+
+      <dialog class="view-dialog" id="view-match-dialog" aria-labelledby="view-match-title">
+        <p class="eyebrow">MATCH RESULT</p>
+        <h2 id="view-match-title">Final score</h2>
+        <div class="next-matchup" id="view-matchup"></div>
+        <p class="view-score" id="view-score"></p>
+        <p class="next-mode" id="view-details"></p>
+        <p class="view-times" id="view-times"></p>
+        <div class="dialog-actions">
+          <button class="primary-button" id="view-close" type="button">Close</button>
+        </div>
+      </dialog>
+    </div>
+
+    <button class="exit-fullscreen" id="exit-fullscreen" type="button" aria-label="Exit fullscreen" title="Exit fullscreen" hidden>
+      <span aria-hidden="true">⤡</span><span>Exit fullscreen</span>
+    </button>
+
+    <div class="player-modal" id="player-modal" role="dialog" aria-modal="true" aria-labelledby="player-modal-name" hidden>
+      <div class="player-modal-backdrop" data-close-player-modal></div>
+      <div class="player-modal-card">
+        <div class="player-modal-head">
+          <div>
+            <p class="eyebrow">PLAYER HISTORY</p>
+            <h2 id="player-modal-name">Player</h2>
+            <p class="player-modal-record" id="player-modal-record"></p>
+          </div>
+          <button class="player-modal-close" id="player-modal-close" type="button" aria-label="Close player history">×</button>
+        </div>
+        <p class="player-modal-sub" id="player-modal-sub">Record with each partner and opponent</p>
+        <div class="player-modal-body" id="player-modal-body"></div>
+      </div>
+    </div>
+
+    <div class="session-modal" id="session-modal" role="dialog" aria-modal="true" aria-labelledby="session-modal-title" hidden>
+      <div class="session-modal-backdrop" data-close-session-modal></div>
+      <div class="session-modal-card">
+        <div class="player-modal-head">
+          <div>
+            <p class="eyebrow">WRAPPED SESSION</p>
+            <h2 id="session-modal-title">Day</h2>
+            <p class="player-modal-record" id="session-modal-record"></p>
+          </div>
+          <button class="player-modal-close" id="session-modal-close" type="button" aria-label="Close session">×</button>
+        </div>
+        <p class="player-modal-sub">Match schedule</p>
+        <div class="session-matches" id="session-modal-matches"></div>
+        <p class="player-modal-sub">Standings</p>
+        <div class="standings-head"><span>PLAYER</span><span>W—L</span><span>WIN %</span></div>
+        <div class="session-standings" id="session-modal-standings"></div>
+      </div>
+    </div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
