@@ -552,7 +552,12 @@
   function renderStandings() {
     const list = $("#standings-list");
     const standings = computeStandings(state.players, state.matches);
-    if (!standings.length) {
+    const hasStandings = standings.length > 0;
+    const head = $("#live-head");
+    const foot = $("#live-foot");
+    if (head) head.hidden = !hasStandings;
+    if (foot) foot.hidden = !hasStandings;
+    if (!hasStandings) {
       list.innerHTML = '<div class="standings-empty">Add players to start building your leaderboard.</div>';
       return;
     }
@@ -578,7 +583,12 @@
     const list = $("#alltime-standings");
     const context = buildAllTimeContext();
     const standings = computeStandings(context.players, context.matches).filter((entry) => entry.played > 0);
-    if (!standings.length) {
+    const hasStandings = standings.length > 0;
+    const head = $("#alltime-head");
+    const foot = $("#alltime-foot");
+    if (head) head.hidden = !hasStandings;
+    if (foot) foot.hidden = !hasStandings;
+    if (!hasStandings) {
       list.innerHTML = '<div class="standings-empty">No results yet. Play and finalize matches (or wrap up a day) to build your all-time record.</div>';
       return;
     }
