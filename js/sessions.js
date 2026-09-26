@@ -133,13 +133,14 @@
     const incomplete = App.state.matches.filter((match) => !match.completed);
     if (!completed.length) return;
     const now = new Date();
-    App.state.sessions.push({
+    const session = {
       id: App.id(),
       dateISO: App.localDateISO(now),
       wrappedAt: now.getTime(),
       players: App.state.players.map((player) => ({ ...player })),
       matches: completed.map((match) => ({ ...match, teamA: [...match.teamA], teamB: [...match.teamB] })),
-    });
+    };
+    App.state.sessions.push(session);
     App.state.matches = incomplete;
     if (App.state.game.matchId && !incomplete.some((match) => match.id === App.state.game.matchId)) {
       App.resetGame({ keepMatch: false, startTimer: false });
@@ -149,6 +150,7 @@
     App.renderStandings();
     App.renderSessions();
     App.showToast(`Wrapped up ${completed.length} match${completed.length === 1 ? "" : "es"}.`);
+    App.openSessionModal(session.id);
   };
 
   App.openClearConfirm = function openClearConfirm() {

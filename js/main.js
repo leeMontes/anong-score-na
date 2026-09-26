@@ -179,6 +179,9 @@
     App.$("#session-modal").addEventListener("click", (event) => {
       if (event.target.closest("[data-close-session-modal]")) App.closeSessionModal();
     });
+    App.$("#session-screenshot").addEventListener("click", () => {
+      App.saveSessionScreenshot(App.$("#session-modal").dataset.sessionId);
+    });
     App.$("#session-delete").addEventListener("click", () => {
       const dialog = App.$("#confirm-delete-dialog");
       if (!dialog.open) dialog.showModal();
