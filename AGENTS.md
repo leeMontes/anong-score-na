@@ -10,12 +10,20 @@ Static pickleball scorecard web app: plain HTML/CSS/JS, **no package manager, no
 
 ## Architecture (`js/`)
 - Plain scripts (no ES modules). Every file is an IIFE that attaches functions to a shared global namespace `window.App = window.App || {}`; `index.html` loads them in dependency order with `<script defer>`: `core → timer → game → matches → standings → sessions → ui → main`.
-- File roles: `core.js` (namespace, `$`/`$$`, state + `loadState`/`saveState`, IDs, formatting, toasts) · `timer.js` · `game.js` (scoreboard + scoring) · `matches.js` (roster, draft, schedule, match flow) · `standings.js` (live/All-Time + player modal) · `sessions.js` (archive, wrap-up, clear) · `ui.js` (`switchView`, theme, fullscreen) · `main.js` (composition root).
+- File roles: `core.js` (namespace, `$`/`$$`, state + `loadState`/`saveState`, IDs, formatting, toasts) · `timer.js` (game stopwatch: `gameElapsedMs` / `syncGameTimer`) · `game.js` (scoreboard + scoring) · `matches.js` (roster, draft, schedule, match flow) · `standings.js` (live/All-Time + player modal) · `sessions.js` (archive, wrap-up, clear) · `ui.js` (`switchView`, theme, fullscreen) · `main.js` (composition root).
 - `main.js` is the **only** file that runs at load: it sets `App.state = App.loadState()`, binds every event listener, then does the initial render. Other files only *define* `App.foo` functions — no top-level side effects (this avoids load-order bugs, e.g. `loadState` calling `isWinningScore`).
 - Cross-file calls go through the namespace: `App.renderGame()`, `App.saveState()`, etc. Shared mutable state lives on `App` (`App.state`, `App.scoreHistory`, `App.timerInterval`, `App.nextMatchId`, modals' timers, `App.theme`). DOM helpers: `App.$()` / `App.$$()`.
 - Single `state` object (`{ players, matches, sessions, game }`) persisted by `App.saveState()`.
 - **Storage keys:** `rally-pickleball-v1` (all app data) and `anong-theme` (light/dark). `rally-pickleball-v1` is a legacy name kept on purpose — **do not rename it**, it would erase users' saved data.
 - `loadState()` tolerates older saves; keep new persisted fields backward-compatible.
+
+## Modals & delegated DOM hooks
+- Two modal styles coexist: **native `<dialog>`** for `#result-dialog`, `#next-match-dialog`, `#view-match-dialog`, and the three confirm dialogs (`#confirm-wrapup-dialog`, `#confirm-clear-dialog`, `#confirm-delete-dialog`) — opened with `.showModal()`; and **custom overlay divs** `#player-modal` / `#session-modal` toggled via `hidden` + an `.open` class (`z-index` 40 / 30, so the player modal stacks above the session modal). Destructive actions each have a confirm dialog; the global Escape handler skips closing the underlying modal while any native dialog is open.
+- Interaction is wired with delegated `data-*` attributes — reuse these instead of adding new listeners: `data-view`, `data-score-tap`, `data-score` + `data-change`, `data-serving`, `data-match-id` + `data-completed`, `data-player-id`, `data-session-id`, `data-remove-player`, `data-close-*-modal`.
+
+## State actions (don't guess the semantics)
+- `resetGame({ keepMatch: true })` (Reset button) zeroes scores but keeps the linked match; `resetGame({ keepMatch: false })` (Score card tester, clear, wrap-up cleanup) detaches to a fresh HOME/AWAY card.
+- `clearSchedule()` empties `App.state.matches` entirely; `wrapUpSession()` archives completed matches into `App.state.sessions` and leaves unplayed ones on the schedule.
 
 ## Adding / changing a page
 Views are show/hide sections, not routes. To add a page you MUST:
