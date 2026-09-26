@@ -147,6 +147,7 @@
                   <div><span class="step-label">02 / SCHEDULE</span><h2>Match schedule</h2></div>
                   <div class="panel-heading-actions">
                     <span class="count-pill" id="match-count">0 MATCHES</span>
+                    <button class="wrapup-button clear-button" id="clear-schedule" type="button">Clear schedule</button>
                     <button class="wrapup-button" id="wrapup-button" type="button">Wrap up day</button>
                   </div>
                 </div>
@@ -331,6 +332,16 @@
       <div class="dialog-actions">
         <button class="primary-button ghost" id="confirm-wrapup-cancel" type="button">Cancel</button>
         <button class="primary-button" id="confirm-wrapup-ok" type="button">Wrap up</button>
+      </div>
+    </dialog>
+
+    <dialog class="view-dialog confirm-dialog" id="confirm-clear-dialog" aria-labelledby="confirm-clear-title">
+      <p class="eyebrow">CLEAR SCHEDULE</p>
+      <h2 id="confirm-clear-title">Clear the schedule?</h2>
+      <p class="confirm-text" id="confirm-clear-text"></p>
+      <div class="dialog-actions">
+        <button class="primary-button ghost" id="confirm-clear-cancel" type="button">Cancel</button>
+        <button class="primary-button danger" id="confirm-clear-ok" type="button">Clear</button>
       </div>
     </dialog>
     <script src="app.js" defer></script>

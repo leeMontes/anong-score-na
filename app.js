@@ -769,6 +769,28 @@
     showToast(`Wrapped up ${completed.length} match${completed.length === 1 ? "" : "es"}.`);
   }
 
+  function openClearConfirm() {
+    const total = state.matches.length;
+    if (!total) {
+      showToast("Nothing to clear — the schedule is already empty.");
+      return;
+    }
+    $("#confirm-clear-text").textContent = `This removes all ${total} match${total === 1 ? "" : "es"}, including finalized results. You can draft a new schedule afterward.`;
+    const dialog = $("#confirm-clear-dialog");
+    if (!dialog.open) dialog.showModal();
+  }
+
+  function clearSchedule() {
+    state.matches = [];
+    if (state.game.matchId) {
+      resetGame({ keepMatch: false, startTimer: false });
+    }
+    saveState();
+    renderMatches();
+    renderStandings();
+    showToast("Schedule cleared.");
+  }
+
   function renderSessions() {
     const list = $("#sessions-list");
     const sessions = [...state.sessions].sort((a, b) => b.wrappedAt - a.wrappedAt);
@@ -1029,6 +1051,7 @@
 
   $("#draft-button").addEventListener("click", draftMatches);
   $("#wrapup-button").addEventListener("click", openWrapUpConfirm);
+  $("#clear-schedule").addEventListener("click", openClearConfirm);
   $("#matches-list").addEventListener("click", (event) => {
     const button = event.target.closest("[data-match-id]");
     if (!button) return;
@@ -1089,6 +1112,14 @@
   $("#confirm-wrapup-dialog").addEventListener("click", (event) => {
     if (event.target === $("#confirm-wrapup-dialog")) $("#confirm-wrapup-dialog").close();
   });
+  $("#confirm-clear-cancel").addEventListener("click", () => $("#confirm-clear-dialog").close());
+  $("#confirm-clear-ok").addEventListener("click", () => {
+    $("#confirm-clear-dialog").close();
+    clearSchedule();
+  });
+  $("#confirm-clear-dialog").addEventListener("click", (event) => {
+    if (event.target === $("#confirm-clear-dialog")) $("#confirm-clear-dialog").close();
+  });
 
   $("#alltime-standings").addEventListener("click", (event) => {
     const row = event.target.closest("[data-player-id]");
@@ -1120,7 +1151,7 @@
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    const nativeDialogOpen = ["confirm-delete-dialog", "confirm-wrapup-dialog", "view-match-dialog", "result-dialog", "next-match-dialog"]
+    const nativeDialogOpen = ["confirm-delete-dialog", "confirm-wrapup-dialog", "confirm-clear-dialog", "view-match-dialog", "result-dialog", "next-match-dialog"]
       .some((dialogId) => document.getElementById(dialogId)?.open);
     if (nativeDialogOpen) return;
     if (!$("#player-modal").hidden) closePlayerModal();
