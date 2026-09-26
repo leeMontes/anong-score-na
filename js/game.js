@@ -110,6 +110,7 @@
   };
 
   App.startTesterGame = function startTesterGame() {
+    if (App.isViewer) return;
     if (App.state.game.matchId || App.state.game.left > 0 || App.state.game.right > 0) {
       const proceed = window.confirm("Start a fresh score card? This clears the current score and detaches from any match.");
       if (!proceed) return;
@@ -119,6 +120,7 @@
   };
 
   App.resetGame = function resetGame({ keepMatch = false, startTimer = true } = {}) {
+    if (App.isViewer) return;
     const previous = App.state.game;
     App.state.game = {
       ...App.initialState.game,
@@ -134,6 +136,7 @@
   };
 
   App.updateScore = function updateScore(side, change) {
+    if (App.isViewer) return;
     const game = App.state.game;
     if (App.winnerSide()) {
       App.showToast("This game is complete. Finalize the result or reset the score.");
@@ -149,6 +152,7 @@
   };
 
   App.revertScore = function revertScore(side) {
+    if (App.isViewer) return;
     const game = App.state.game;
     if (game[side] === 0) return;
     App.scoreHistory.push({ ...game });
@@ -159,6 +163,7 @@
   };
 
   App.undoPoint = function undoPoint() {
+    if (App.isViewer) return false;
     const previous = App.scoreHistory.pop();
     if (!previous) return false;
     App.state.game = previous;
@@ -168,6 +173,7 @@
   };
 
   App.toggleServer = function toggleServer() {
+    if (App.isViewer) return;
     if (App.state.game.mode === "singles") return;
     App.state.game.server = App.state.game.server === 1 ? 2 : 1;
     App.saveState();

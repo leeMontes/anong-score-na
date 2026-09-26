@@ -99,6 +99,7 @@
   };
 
   App.deleteSession = function deleteSession(sessionId) {
+    if (App.isViewer) return;
     const index = App.state.sessions.findIndex((item) => item.id === sessionId);
     if (index === -1) return;
     App.state.sessions.splice(index, 1);
@@ -129,6 +130,7 @@
   };
 
   App.wrapUpSession = function wrapUpSession() {
+    if (App.isViewer) return;
     const completed = App.state.matches.filter((match) => match.completed);
     const incomplete = App.state.matches.filter((match) => !match.completed);
     if (!completed.length) return;
@@ -165,6 +167,7 @@
   };
 
   App.clearSchedule = function clearSchedule() {
+    if (App.isViewer) return;
     App.state.matches = [];
     if (App.state.game.matchId) {
       App.resetGame({ keepMatch: false, startTimer: false });

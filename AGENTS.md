@@ -9,8 +9,8 @@ Static pickleball scorecard web app: plain HTML/CSS/JS, **no package manager, no
 - Deploy: push to `main`. GitHub Pages publishes the repo root automatically (repo is public). Live: https://leemontes.github.io/anong-score-na/
 
 ## Architecture (`js/`)
-- Plain scripts (no ES modules). Every file is an IIFE that attaches functions to a shared global namespace `window.App = window.App || {}`; `index.html` loads them in dependency order with `<script defer>`: `core → timer → game → matches → standings → sessions → ui → export → main`.
-- File roles: `core.js` (namespace, `$`/`$$`, state + `loadState`/`saveState`, IDs, formatting, toasts) · `timer.js` (game stopwatch: `gameElapsedMs` / `syncGameTimer`) · `game.js` (scoreboard + scoring) · `matches.js` (roster, draft, schedule, match flow) · `standings.js` (live/All-Time + player modal) · `sessions.js` (archive, wrap-up, clear) · `ui.js` (`switchView`, theme, fullscreen) · `export.js` (session screenshot → canvas + Web Share/download) · `main.js` (composition root).
+- Plain scripts (no ES modules). Every file is an IIFE that attaches functions to a shared global namespace `window.App = window.App || {}`; `index.html` loads them in dependency order with `<script defer>`: `core → timer → game → matches → standings → sessions → ui → export → live → main` (plus vendored `js/vendor/peerjs.min.js` + `js/vendor/qrcode.min.js` loaded first).
+- File roles: `core.js` (namespace, `$`/`$$`, state + `loadState`/`saveState`, IDs, formatting, toasts) · `timer.js` (game stopwatch: `gameElapsedMs` / `syncGameTimer`) · `game.js` (scoreboard + scoring) · `matches.js` (roster, draft, schedule, match flow) · `standings.js` (live/All-Time + player modal) · `sessions.js` (archive, wrap-up, clear) · `ui.js` (`switchView`, theme, fullscreen) · `export.js` (session screenshot → canvas + Web Share/download) · `live.js` (WebRTC live share via PeerJS + QR; read-only viewer mode) · `main.js` (composition root).
 - `main.js` is the **only** file that runs at load: it sets `App.state = App.loadState()`, binds every event listener, then does the initial render. Other files only *define* `App.foo` functions — no top-level side effects (this avoids load-order bugs, e.g. `loadState` calling `isWinningScore`).
 - Cross-file calls go through the namespace: `App.renderGame()`, `App.saveState()`, etc. Shared mutable state lives on `App` (`App.state`, `App.scoreHistory`, `App.timerInterval`, `App.nextMatchId`, modals' timers, `App.theme`). DOM helpers: `App.$()` / `App.$$()`.
 - Single `state` object (`{ players, matches, sessions, game }`) persisted by `App.saveState()`.
@@ -24,6 +24,11 @@ Static pickleball scorecard web app: plain HTML/CSS/JS, **no package manager, no
 ## State actions (don't guess the semantics)
 - `resetGame({ keepMatch: true })` (Reset button) zeroes scores but keeps the linked match; `resetGame({ keepMatch: false })` (Score card tester, clear, wrap-up cleanup) detaches to a fresh HOME/AWAY card.
 - `clearSchedule()` empties `App.state.matches` entirely; `wrapUpSession()` archives completed matches into `App.state.sessions` and leaves unplayed ones on the schedule.
+
+## Live share & viewer mode
+- `live.js` uses PeerJS (vendored) + the free PeerJS cloud for signaling — no backend. Host "Go live" → random room id → QR of `?live=<roomId>`; `App.broadcastLive` (called from `saveState`) pushes the whole `state` to connected viewers.
+- Viewer: a `?live=<roomId>` URL sets `App.isViewer = true` + `body.viewer` (read-only). `saveState()` is a no-op and the mutating `App.*` functions early-return when `App.isViewer`. `main.js` starts from `initialState` (not localStorage) and calls `App.initLiveViewer`.
+- Needs a secure context (HTTPS / localhost). The PeerJS free cloud is fine for demo; cross-network NAT traversal can require TURN.
 
 ## Adding / changing a page
 Views are show/hide sections, not routes. To add a page you MUST:

@@ -147,6 +147,7 @@
                   <div><span class="step-label">02 / SCHEDULE</span><h2>Match schedule</h2></div>
                   <div class="panel-heading-actions">
                     <span class="count-pill" id="match-count">0 MATCHES</span>
+                    <button class="wrapup-button go-live-button" id="go-live" type="button">Go live</button>
                     <button class="wrapup-button clear-button" id="clear-schedule" type="button">Clear schedule</button>
                     <button class="wrapup-button" id="wrapup-button" type="button">Wrap up day</button>
                   </div>
@@ -345,6 +346,24 @@
         <button class="primary-button danger" id="confirm-clear-ok" type="button">Clear</button>
       </div>
     </dialog>
+    <dialog class="view-dialog live-dialog" id="live-dialog" aria-labelledby="live-title">
+      <p class="eyebrow">WATCH LIVE</p>
+      <h2 id="live-title">Scan to watch</h2>
+      <p class="confirm-text">Point another device's camera at this code to follow the scorecard live.</p>
+      <div class="qr-code" id="qr-code"></div>
+      <input class="qr-link" id="qr-link" type="text" readonly aria-label="Live link">
+      <p class="live-status" id="live-status"></p>
+      <div class="dialog-actions">
+        <button class="primary-button ghost" id="live-copy" type="button">Copy link</button>
+        <button class="primary-button danger" id="live-stop" type="button">Stop sharing</button>
+      </div>
+    </dialog>
+
+    <div class="live-badge" id="live-badge" data-state="" hidden>
+      <span class="live-pulse"></span><span id="live-badge-text">Live</span>
+    </div>
+    <script src="js/vendor/peerjs.min.js" defer></script>
+    <script src="js/vendor/qrcode.min.js" defer></script>
     <script src="js/core.js" defer></script>
     <script src="js/timer.js" defer></script>
     <script src="js/game.js" defer></script>
@@ -353,6 +372,7 @@
     <script src="js/sessions.js" defer></script>
     <script src="js/ui.js" defer></script>
     <script src="js/export.js" defer></script>
+    <script src="js/live.js" defer></script>
     <script src="js/main.js" defer></script>
   </body>
 </html>

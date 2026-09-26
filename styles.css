@@ -611,3 +611,30 @@ body[data-theme="dark"] .add-player-form input:focus { background: var(--surface
     transition-duration: .01ms !important;
   }
 }
+
+/* Live sharing */
+.go-live-button { background: #e8f3e1; box-shadow: inset 0 0 0 1px rgba(52, 199, 89, .35); }
+.qr-code { display: grid; place-items: center; width: 232px; height: 232px; margin: 8px auto 16px; padding: 8px; border-radius: 16px; background: #fff; }
+.qr-code canvas, .qr-code img { display: block; max-width: 100%; }
+.qr-link { width: 100%; margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--hairline); border-radius: 10px; background: var(--surface-2); color: var(--text-2); font-size: 12px; text-align: center; }
+.live-status { margin: 0 0 20px; color: var(--text-3); font-size: 13px; font-weight: 600; }
+.live-badge { position: fixed; z-index: 25; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(28, 28, 30, .9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); color: #f5f5f7; font-size: 13px; font-weight: 600; transform: translateX(-50%); box-shadow: 0 10px 30px rgba(0, 0, 0, .3); }
+.live-pulse { width: 9px; height: 9px; border-radius: 50%; background: #30d158; animation: live-pulse 1.6s infinite; }
+.live-badge[data-state="connecting"] .live-pulse, .live-badge[data-state="offline"] .live-pulse { background: #ff9f0a; }
+.live-badge[data-state="offline"] { opacity: .85; }
+@keyframes live-pulse { 0% { box-shadow: 0 0 0 0 rgba(48, 209, 88, .5); } 70% { box-shadow: 0 0 0 9px rgba(48, 209, 88, 0); } 100% { box-shadow: 0 0 0 0 rgba(48, 209, 88, 0); } }
+
+/* Read-only viewer mode */
+body.viewer .game-format,
+body.viewer .scoring-controls,
+body.viewer .score-actions,
+body.viewer .add-player-form,
+body.viewer .draft-controls,
+body.viewer .panel-heading-actions,
+body.viewer .player-chip button,
+body.viewer .match-card:not(.completed) .match-action { display: none; }
+body.viewer .score-touch-target,
+body.viewer .service-number { pointer-events: none; }
+body.viewer .nav-button[data-view="sessions-view"],
+body.viewer .nav-button[data-view="alltime-view"],
+body.viewer .nav-button[data-view="info-view"] { display: none; }

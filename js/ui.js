@@ -23,6 +23,15 @@
     }
   };
 
+  App.renderAll = function renderAll() {
+    App.renderGame();
+    App.renderPlayers();
+    App.renderMatches();
+    App.renderStandings();
+    App.renderSessions();
+    App.renderAllTime();
+  };
+
   App.applyTheme = function applyTheme(theme) {
     document.body.dataset.theme = theme;
     const button = App.$("#theme-button");

@@ -33,11 +33,13 @@
   };
 
   App.saveState = function saveState() {
+    if (App.isViewer) return;
     try {
       localStorage.setItem(App.STORAGE_KEY, JSON.stringify(App.state));
     } catch {
       App.showToast("Could not save on this device. Check browser storage settings.");
     }
+    if (App.broadcastLive) App.broadcastLive();
   };
 
   App.id = function id() {

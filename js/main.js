@@ -1,7 +1,10 @@
 (() => {
   const App = (window.App = window.App || {});
 
-  App.state = App.loadState();
+  const liveRoom = new URLSearchParams(window.location.search).get("live");
+  if (liveRoom) App.isViewer = true;
+
+  App.state = App.isViewer ? structuredClone(App.initialState) : App.loadState();
   App.scoreHistory = [];
 
   const scoreTouches = { left: new Set(), right: new Set() };
@@ -15,6 +18,7 @@
     });
 
     App.$$(".format-button").forEach((button) => button.addEventListener("click", () => {
+      if (App.isViewer) return;
       if (App.state.game.matchId) {
         const match = App.state.matches.find((item) => item.id === App.state.game.matchId);
         if (match && !match.completed) {
@@ -111,6 +115,7 @@
 
     App.$("#player-form").addEventListener("submit", (event) => {
       event.preventDefault();
+      if (App.isViewer) return;
       const input = App.$("#player-name");
       const name = input.value.trim();
       if (!name) return;
@@ -128,6 +133,7 @@
     });
 
     App.$("#player-list").addEventListener("click", (event) => {
+      if (App.isViewer) return;
       const button = event.target.closest("[data-remove-player]");
       if (!button) return;
       const player = App.state.players.find((item) => item.id === button.dataset.removePlayer);
@@ -144,11 +150,26 @@
     App.$("#draft-button").addEventListener("click", App.draftMatches);
     App.$("#wrapup-button").addEventListener("click", App.openWrapUpConfirm);
     App.$("#clear-schedule").addEventListener("click", App.openClearConfirm);
+    App.$("#go-live").addEventListener("click", App.startLiveShare);
+    App.$("#live-stop").addEventListener("click", App.stopLiveShare);
+    App.$("#live-copy").addEventListener("click", async () => {
+      const link = App.$("#qr-link");
+      try {
+        await navigator.clipboard.writeText(link.value);
+        App.showToast("Live link copied.");
+      } catch {
+        link.select();
+        App.showToast("Press copy to grab the link.");
+      }
+    });
+    App.$("#live-dialog").addEventListener("click", (event) => {
+      if (event.target === App.$("#live-dialog")) App.$("#live-dialog").close();
+    });
     App.$("#matches-list").addEventListener("click", (event) => {
       const button = event.target.closest("[data-match-id]");
       if (!button) return;
       if (button.dataset.completed === "1") App.openViewMatchModal(button.dataset.matchId);
-      else App.loadMatch(button.dataset.matchId);
+      else if (!App.isViewer) App.loadMatch(button.dataset.matchId);
     });
     App.$("#view-close").addEventListener("click", () => App.$("#view-match-dialog").close());
     App.$("#view-match-dialog").addEventListener("click", (event) => {
@@ -242,7 +263,7 @@
 
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape") return;
-      const nativeDialogOpen = ["confirm-delete-dialog", "confirm-wrapup-dialog", "confirm-clear-dialog", "view-match-dialog", "result-dialog", "next-match-dialog"]
+      const nativeDialogOpen = ["confirm-delete-dialog", "confirm-wrapup-dialog", "confirm-clear-dialog", "view-match-dialog", "result-dialog", "next-match-dialog", "live-dialog"]
         .some((dialogId) => document.getElementById(dialogId)?.open);
       if (nativeDialogOpen) return;
       if (!App.$("#player-modal").hidden) App.closePlayerModal();
@@ -297,12 +318,9 @@
   bindFullscreen();
   bindTheme();
 
-  App.renderGame();
-  App.renderPlayers();
-  App.renderMatches();
-  App.renderStandings();
-  App.renderSessions();
-  App.renderAllTime();
+  App.renderAll();
+
+  if (liveRoom) App.initLiveViewer(liveRoom);
 
   spinBrandMark();
 })();

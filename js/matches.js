@@ -58,6 +58,7 @@
   };
 
   App.draftMatches = function draftMatches() {
+    if (App.isViewer) return;
     const mode = App.$("#draft-mode").value;
     if (mode === "singles" && App.state.players.length < 2) {
       App.showToast("Add at least 2 players to draft singles matches.");
@@ -127,6 +128,7 @@
   };
 
   App.loadMatch = function loadMatch(matchId) {
+    if (App.isViewer) return;
     const match = App.state.matches.find((item) => item.id === matchId);
     if (!match) return;
     const names = App.namesForMatch(match);
@@ -149,6 +151,7 @@
   };
 
   App.finalizeMatch = function finalizeMatch() {
+    if (App.isViewer) return;
     const game = App.state.game;
     const match = App.state.matches.find((item) => item.id === game.matchId);
     const side = App.winnerSide();
