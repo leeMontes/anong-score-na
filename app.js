@@ -551,14 +551,14 @@
 
   function renderStandings() {
     const list = $("#standings-list");
-    const standings = computeStandings(state.players, state.matches);
+    const standings = computeStandings(state.players, state.matches).filter((entry) => entry.played > 0);
     const hasStandings = standings.length > 0;
     const head = $("#live-head");
     const foot = $("#live-foot");
     if (head) head.hidden = !hasStandings;
     if (foot) foot.hidden = !hasStandings;
     if (!hasStandings) {
-      list.innerHTML = '<div class="standings-empty">Add players to start building your leaderboard.</div>';
+      list.innerHTML = '<div class="standings-empty">No results yet — finalize a match to see standings.</div>';
       return;
     }
     buildStandingsList(list, standings, true);
@@ -846,6 +846,14 @@
     sessionModalTimer = setTimeout(() => { modal.hidden = true; }, 260);
   }
 
+  function deleteSession(sessionId) {
+    const index = state.sessions.findIndex((item) => item.id === sessionId);
+    if (index === -1) return;
+    state.sessions.splice(index, 1);
+    saveState();
+    renderSessions();
+  }
+
   function loadMatch(matchId) {
     const match = state.matches.find((item) => item.id === matchId);
     if (!match) return;
@@ -1044,6 +1052,23 @@
   $("#session-modal").addEventListener("click", (event) => {
     if (event.target.closest("[data-close-session-modal]")) closeSessionModal();
   });
+  $("#session-delete").addEventListener("click", () => {
+    const dialog = $("#confirm-delete-dialog");
+    if (!dialog.open) dialog.showModal();
+  });
+  $("#confirm-delete-cancel").addEventListener("click", () => $("#confirm-delete-dialog").close());
+  $("#confirm-delete-ok").addEventListener("click", () => {
+    const sessionId = $("#session-modal").dataset.sessionId;
+    $("#confirm-delete-dialog").close();
+    closeSessionModal();
+    if (sessionId) {
+      deleteSession(sessionId);
+      showToast("Session deleted.");
+    }
+  });
+  $("#confirm-delete-dialog").addEventListener("click", (event) => {
+    if (event.target === $("#confirm-delete-dialog")) $("#confirm-delete-dialog").close();
+  });
 
   $("#alltime-standings").addEventListener("click", (event) => {
     const row = event.target.closest("[data-player-id]");
@@ -1075,6 +1100,9 @@
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
+    const nativeDialogOpen = ["confirm-delete-dialog", "view-match-dialog", "result-dialog", "next-match-dialog"]
+      .some((dialogId) => document.getElementById(dialogId)?.open);
+    if (nativeDialogOpen) return;
     if (!$("#player-modal").hidden) closePlayerModal();
     else closeSessionModal();
   });

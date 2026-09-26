@@ -40,7 +40,7 @@
           <div class="score-intro">
             <div>
               <p class="eyebrow"><span class="live-dot"></span> COURTSIDE SCOREBOARD</p>
-              <h1 id="score-heading">Palo lang ng <span>palo</span></h1>
+              <h1 id="score-heading">Rally. Score. <span>Repeat.</span></h1>
             </div>
             <div class="game-format">
               <span class="format-label">GAME FORMAT</span>
@@ -226,7 +226,6 @@
               <h2>Where your data is saved</h2>
               <ul class="info-list">
                 <li>Everything is stored in your browser's <strong>localStorage</strong> — no account, no server, no cloud.</li>
-                <li>Storage keys: <code>rally-pickleball-v1</code> (players, matches, sessions, current game) and <code>anong-theme</code> (light/dark).</li>
                 <li>Data lives only on this device and browser. Clearing site data erases it, and it won't sync to other devices.</li>
               </ul>
             </section>
@@ -309,8 +308,21 @@
         <p class="player-modal-sub">Standings</p>
         <div class="standings-head"><span>PLAYER</span><span>W—L</span><span>WIN %</span></div>
         <div class="session-standings" id="session-modal-standings"></div>
+        <div class="session-modal-actions">
+          <button class="primary-button danger" id="session-delete" type="button">Delete session</button>
+        </div>
       </div>
     </div>
+
+    <dialog class="view-dialog confirm-dialog" id="confirm-delete-dialog" aria-labelledby="confirm-delete-title">
+      <p class="eyebrow">DELETE SESSION</p>
+      <h2 id="confirm-delete-title">Delete this session?</h2>
+      <p class="confirm-text">This removes the day's matches and standings. It can't be undone.</p>
+      <div class="dialog-actions">
+        <button class="primary-button ghost" id="confirm-delete-cancel" type="button">Cancel</button>
+        <button class="primary-button danger" id="confirm-delete-ok" type="button">Delete</button>
+      </div>
+    </dialog>
     <script src="app.js" defer></script>
   </body>
 </html>
