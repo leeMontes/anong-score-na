@@ -5,6 +5,12 @@
 
   let hostPeer = null;
   let hostConnections = [];
+  let hostTimer = null;
+  let hostAttempts = 0;
+
+  let viewerPeer = null;
+  let viewerConn = null;
+  let viewerTimer = null;
 
   const ROOM_CHARS = "abcdefghjkmnpqrstuvwxyz23456789";
 
@@ -26,6 +32,16 @@
     return url.toString();
   }
 
+  function getViewerId() {
+    let id = "";
+    try { id = sessionStorage.getItem("anong-viewer-id") || ""; } catch { id = ""; }
+    if (!id) {
+      id = Math.random().toString(36).slice(2, 10);
+      try { sessionStorage.setItem("anong-viewer-id", id); } catch { /* ignore */ }
+    }
+    return id;
+  }
+
   function setBadge(text, state) {
     const badge = App.$("#live-badge");
     if (!badge) return;
@@ -37,8 +53,8 @@
 
   function updateHostUi() {
     const count = hostConnections.length;
-    const button = App.$("#go-live");
-    if (button) button.textContent = count ? `Live · ${count} watching` : "You're live";
+    const label = App.$("#go-live-label");
+    if (label) label.textContent = count ? `Live · ${count} watching` : "You're live";
     const status = App.$("#live-status");
     if (status) status.textContent = count
       ? `${count} device${count === 1 ? "" : "s"} watching`
@@ -56,7 +72,15 @@
   }
   App.broadcastLive = broadcast;
 
+  function connectionIdentity(conn) {
+    return (conn.metadata && conn.metadata.viewerId) || conn.peer;
+  }
+
   function handleConnection(conn) {
+    const identity = connectionIdentity(conn);
+    const stale = hostConnections.filter((item) => connectionIdentity(item) === identity);
+    stale.forEach((item) => { try { item.close(); } catch { /* ignore */ } });
+    hostConnections = hostConnections.filter((item) => connectionIdentity(item) !== identity);
     hostConnections.push(conn);
     conn.on("open", () => {
       updateHostUi();
@@ -83,71 +107,163 @@
     if (link) link.value = url;
   }
 
-  function startHosting(attempt) {
-    const roomId = makeRoomId();
+  function openLiveDialog() {
+    const dialog = App.$("#live-dialog");
+    if (dialog && !dialog.open) dialog.showModal();
+  }
+
+  function setLiveModalState(isLive) {
+    const body = App.$("#live-body");
+    if (body) body.hidden = !isLive;
+    const note = App.$("#live-off-note");
+    if (note) note.hidden = isLive;
+    const toggle = App.$("#live-switch");
+    if (toggle) toggle.setAttribute("aria-checked", isLive ? "true" : "false");
+  }
+
+  function scheduleHostRetry(roomId, sameId) {
+    clearTimeout(hostTimer);
+    if (hostAttempts >= 8) {
+      App.showToast("Live share lost connection. Toggle live sharing to retry.");
+      return;
+    }
+    hostAttempts += 1;
+    hostTimer = setTimeout(() => {
+      if (!hostPeer) host(sameId ? roomId : makeRoomId(), sameId);
+    }, 1500 * hostAttempts);
+  }
+
+  function host(roomId, isRecovery) {
     const peer = new window.Peer(roomId, { debug: 1 });
     peer.on("open", () => {
       hostPeer = peer;
+      hostAttempts = 0;
       renderQr(viewerUrl(roomId));
-      const dialog = App.$("#live-dialog");
-      if (dialog && !dialog.open) dialog.showModal();
+      const button = App.$("#go-live");
+      if (button) button.classList.add("is-live");
+      setLiveModalState(true);
       updateHostUi();
       App.showToast("You're live — scan the QR to watch.");
     });
     peer.on("connection", handleConnection);
+    peer.on("disconnected", () => {
+      if (hostPeer !== peer || peer.destroyed) return;
+      setTimeout(() => {
+        if (hostPeer === peer && peer.disconnected && !peer.destroyed) {
+          try { peer.reconnect(); } catch { /* ignore */ }
+        }
+      }, 1200);
+    });
+    peer.on("close", () => {
+      if (hostPeer !== peer) return;
+      hostPeer = null;
+      scheduleHostRetry(roomId, true);
+    });
     peer.on("error", (error) => {
       const type = error && error.type;
-      if (type === "unavailable-id" && attempt < 5) {
-        try { peer.destroy(); } catch { /* ignore */ }
-        startHosting(attempt + 1);
+      if (type === "unavailable-id") {
+        if (isRecovery) scheduleHostRetry(roomId, true);
+        else host(makeRoomId(), false);
         return;
       }
-      if (!hostPeer) App.showToast("Could not go live. Check your connection and try again.");
+      if (!hostPeer) scheduleHostRetry(isRecovery ? roomId : makeRoomId(), isRecovery);
     });
   }
 
-  App.startLiveShare = function startLiveShare() {
+  App.openLiveModal = function openLiveModal() {
+    if (App.isViewer) return;
+    setLiveModalState(Boolean(hostPeer));
+    if (hostPeer) updateHostUi();
+    openLiveDialog();
+  };
+
+  App.toggleLive = function toggleLive() {
+    if (App.isViewer) return;
     if (hostPeer) {
-      const dialog = App.$("#live-dialog");
-      if (dialog && !dialog.open) dialog.showModal();
+      App.stopLiveShare();
       return;
     }
-    startHosting(0);
+    hostAttempts = 0;
+    host(makeRoomId(), false);
   };
 
   App.stopLiveShare = function stopLiveShare() {
+    if (App.isViewer) return;
+    clearTimeout(hostTimer);
+    hostAttempts = 0;
     hostConnections.forEach((conn) => { try { conn.close(); } catch { /* ignore */ } });
     hostConnections = [];
     if (hostPeer) {
       try { hostPeer.destroy(); } catch { /* ignore */ }
     }
     hostPeer = null;
-    const dialog = App.$("#live-dialog");
-    if (dialog && dialog.open) dialog.close();
+    setLiveModalState(false);
     const button = App.$("#go-live");
-    if (button) button.textContent = "Go live";
+    if (button) button.classList.remove("is-live");
+    const label = App.$("#go-live-label");
+    if (label) label.textContent = "Go live";
     const badge = App.$("#live-badge");
     if (badge) badge.hidden = true;
     App.showToast("Stopped sharing.");
   };
 
+  function scheduleViewerRetry(roomId) {
+    clearTimeout(viewerTimer);
+    viewerTimer = setTimeout(() => viewerConnect(roomId), 2500);
+  }
+
+  function dialHost(roomId) {
+    if (!viewerPeer || !viewerPeer.open) {
+      scheduleViewerRetry(roomId);
+      return;
+    }
+    if (viewerConn) {
+      try { viewerConn.close(); } catch { /* ignore */ }
+      viewerConn = null;
+    }
+    const conn = viewerPeer.connect(roomId, { reliable: true, metadata: { viewerId: getViewerId() } });
+    viewerConn = conn;
+    conn.on("open", () => setBadge("Live", "live"));
+    conn.on("data", (payload) => {
+      if (!payload || payload.type !== "state" || !payload.state) return;
+      App.state = payload.state;
+      App.renderAll();
+      setBadge("Live", "live");
+    });
+    conn.on("close", () => {
+      setBadge("Reconnecting…", "connecting");
+      scheduleViewerRetry(roomId);
+    });
+    conn.on("error", () => {
+      setBadge("Reconnecting…", "connecting");
+      scheduleViewerRetry(roomId);
+    });
+  }
+
+  function viewerConnect(roomId) {
+    clearTimeout(viewerTimer);
+    if (!viewerPeer || viewerPeer.destroyed) {
+      viewerPeer = new window.Peer({ debug: 1 });
+      viewerPeer.on("open", () => dialHost(roomId));
+      viewerPeer.on("disconnected", () => {
+        setTimeout(() => {
+          if (viewerPeer && viewerPeer.disconnected && !viewerPeer.destroyed) {
+            try { viewerPeer.reconnect(); } catch { /* ignore */ }
+          }
+        }, 1200);
+      });
+      viewerPeer.on("error", () => scheduleViewerRetry(roomId));
+    } else if (viewerPeer.open) {
+      dialHost(roomId);
+    } else {
+      scheduleViewerRetry(roomId);
+    }
+  }
+
   App.initLiveViewer = function initLiveViewer(roomId) {
     App.isViewer = true;
     document.body.classList.add("viewer");
     setBadge("Connecting…", "connecting");
-    const peer = new window.Peer({ debug: 1 });
-    peer.on("open", () => {
-      const conn = peer.connect(roomId, { reliable: true });
-      conn.on("open", () => setBadge("Live", "live"));
-      conn.on("data", (payload) => {
-        if (!payload || payload.type !== "state" || !payload.state) return;
-        App.state = payload.state;
-        App.renderAll();
-        setBadge("Live", "live");
-      });
-      conn.on("close", () => setBadge("Disconnected", "offline"));
-      conn.on("error", () => setBadge("Connection lost", "offline"));
-    });
-    peer.on("error", () => setBadge("Could not connect", "offline"));
+    viewerConnect(roomId);
   };
 })();

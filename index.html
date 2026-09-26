@@ -147,12 +147,14 @@
                   <div><span class="step-label">02 / SCHEDULE</span><h2>Match schedule</h2></div>
                   <div class="panel-heading-actions">
                     <span class="count-pill" id="match-count">0 MATCHES</span>
-                    <button class="wrapup-button go-live-button" id="go-live" type="button">Go live</button>
-                    <button class="wrapup-button clear-button" id="clear-schedule" type="button">Clear schedule</button>
-                    <button class="wrapup-button" id="wrapup-button" type="button">Wrap up day</button>
+                    <button class="wrapup-button go-live-button" id="go-live" type="button"><span class="btn-icon" aria-hidden="true">◉</span><span class="btn-label" id="go-live-label">Go live</span></button>
                   </div>
                 </div>
                 <div class="matches-list" id="matches-list"></div>
+                <div class="matches-panel-footer">
+                  <button class="wrapup-button clear-button" id="clear-schedule" type="button"><span class="btn-icon" aria-hidden="true">✕</span>Clear schedule</button>
+                  <button class="wrapup-button" id="wrapup-button" type="button"><span class="btn-icon" aria-hidden="true">✓</span>Wrap up day</button>
+                </div>
               </section>
             </div>
 
@@ -348,14 +350,26 @@
     </dialog>
     <dialog class="view-dialog live-dialog" id="live-dialog" aria-labelledby="live-title">
       <p class="eyebrow">WATCH LIVE</p>
-      <h2 id="live-title">Scan to watch</h2>
-      <p class="confirm-text">Point another device's camera at this code to follow the scorecard live.</p>
-      <div class="qr-code" id="qr-code"></div>
-      <input class="qr-link" id="qr-link" type="text" readonly aria-label="Live link">
-      <p class="live-status" id="live-status"></p>
+      <h2 id="live-title">Share the scoreboard</h2>
+      <div class="live-toggle-row">
+        <span class="live-toggle-label">Live sharing</span>
+        <button class="live-switch" id="live-switch" type="button" role="switch" aria-checked="false" aria-label="Toggle live sharing">
+          <span class="live-switch-thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div id="live-body" hidden>
+        <p class="confirm-text">Point another device's camera at this code to follow the scorecard live.</p>
+        <div class="qr-code" id="qr-code"></div>
+        <input class="qr-link" id="qr-link" type="text" readonly aria-label="Live link">
+        <p class="live-status" id="live-status"></p>
+        <div class="dialog-actions">
+          <button class="primary-button ghost" id="live-copy" type="button">Copy link</button>
+        </div>
+      </div>
+      <p class="live-off-note" id="live-off-note">Turn on live sharing to generate a scannable QR code for spectators.</p>
+      <p class="live-beta">Live view is in beta <span aria-hidden="true">🙂</span></p>
       <div class="dialog-actions">
-        <button class="primary-button ghost" id="live-copy" type="button">Copy link</button>
-        <button class="primary-button danger" id="live-stop" type="button">Stop sharing</button>
+        <button class="primary-button ghost" id="live-close" type="button">Close</button>
       </div>
     </dialog>
 

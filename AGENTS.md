@@ -26,7 +26,9 @@ Static pickleball scorecard web app: plain HTML/CSS/JS, **no package manager, no
 - `clearSchedule()` empties `App.state.matches` entirely; `wrapUpSession()` archives completed matches into `App.state.sessions` and leaves unplayed ones on the schedule.
 
 ## Live share & viewer mode
-- `live.js` uses PeerJS (vendored) + the free PeerJS cloud for signaling — no backend. Host "Go live" → random room id → QR of `?live=<roomId>`; `App.broadcastLive` (called from `saveState`) pushes the whole `state` to connected viewers.
+- `live.js` uses PeerJS (vendored) + the free PeerJS cloud for signaling — no backend. "Go live" only **opens `#live-dialog`** (`App.openLiveModal`); hosting actually starts when the user flips the `#live-switch` toggle inside the modal (`App.toggleLive` → `host(makeRoomId(), false)`). A room id is random, and the QR encodes `?live=<roomId>`. `setLiveModalState(on)` keeps `#live-body` (QR/link/status) and `#live-off-note` in sync with the toggle. `App.broadcastLive` (called from `saveState`) pushes the whole `state` to connected viewers.
+- Auto-reconnect: a dropped host peer re-registers the **same** room id (bounded to 8 attempts); viewers redial every ~2.5s and show "Reconnecting…". Dedupe viewers by `conn.metadata.viewerId` (a per-tab id in `sessionStorage` under `anong-viewer-id`), so refreshing a viewer does not inflate the watcher count.
+- Toggling the switch off (`App.stopLiveShare`) keeps the modal open and resets it to the off state; the separate "Close" button just dismisses the dialog without stopping.
 - Viewer: a `?live=<roomId>` URL sets `App.isViewer = true` + `body.viewer` (read-only). `saveState()` is a no-op and the mutating `App.*` functions early-return when `App.isViewer`. `main.js` starts from `initialState` (not localStorage) and calls `App.initLiveViewer`.
 - Needs a secure context (HTTPS / localhost). The PeerJS free cloud is fine for demo; cross-network NAT traversal can require TURN.
 

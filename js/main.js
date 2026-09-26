@@ -150,8 +150,11 @@
     App.$("#draft-button").addEventListener("click", App.draftMatches);
     App.$("#wrapup-button").addEventListener("click", App.openWrapUpConfirm);
     App.$("#clear-schedule").addEventListener("click", App.openClearConfirm);
-    App.$("#go-live").addEventListener("click", App.startLiveShare);
-    App.$("#live-stop").addEventListener("click", App.stopLiveShare);
+    App.$("#go-live").addEventListener("click", App.openLiveModal);
+    App.$("#live-switch").addEventListener("click", App.toggleLive);
+    App.$("#live-close").addEventListener("click", () => {
+      App.$("#live-dialog").close();
+    });
     App.$("#live-copy").addEventListener("click", async () => {
       const link = App.$("#qr-link");
       try {
