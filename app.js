@@ -553,8 +553,10 @@
     const list = $("#standings-list");
     const standings = computeStandings(state.players, state.matches).filter((entry) => entry.played > 0);
     const hasStandings = standings.length > 0;
+    const note = $("#standings-note");
     const head = $("#live-head");
     const foot = $("#live-foot");
+    if (note) note.hidden = !hasStandings;
     if (head) head.hidden = !hasStandings;
     if (foot) foot.hidden = !hasStandings;
     if (!hasStandings) {
@@ -727,17 +729,27 @@
     if (!dialog.open) dialog.showModal();
   }
 
-  function wrapUpSession() {
+  function openWrapUpConfirm() {
     const completed = state.matches.filter((match) => match.completed);
     const incomplete = state.matches.filter((match) => !match.completed);
     if (!completed.length) {
       showToast("Nothing to wrap up yet — no finalized matches.");
       return;
     }
+    const matchWord = completed.length === 1 ? "match" : "matches";
+    let message = `Wrap up ${completed.length} finalized ${matchWord}?`;
     if (incomplete.length) {
-      const proceed = window.confirm(`${incomplete.length} unplayed match${incomplete.length === 1 ? "" : "es"} will stay on the schedule. Wrap up the ${completed.length} finalized match${completed.length === 1 ? "" : "es"}?`);
-      if (!proceed) return;
+      message += ` ${incomplete.length} unplayed match${incomplete.length === 1 ? "" : "es"} will stay on the schedule.`;
     }
+    $("#confirm-wrapup-text").textContent = message;
+    const dialog = $("#confirm-wrapup-dialog");
+    if (!dialog.open) dialog.showModal();
+  }
+
+  function wrapUpSession() {
+    const completed = state.matches.filter((match) => match.completed);
+    const incomplete = state.matches.filter((match) => !match.completed);
+    if (!completed.length) return;
     const now = new Date();
     state.sessions.push({
       id: id(),
@@ -1016,7 +1028,7 @@
   });
 
   $("#draft-button").addEventListener("click", draftMatches);
-  $("#wrapup-button").addEventListener("click", wrapUpSession);
+  $("#wrapup-button").addEventListener("click", openWrapUpConfirm);
   $("#matches-list").addEventListener("click", (event) => {
     const button = event.target.closest("[data-match-id]");
     if (!button) return;
@@ -1069,6 +1081,14 @@
   $("#confirm-delete-dialog").addEventListener("click", (event) => {
     if (event.target === $("#confirm-delete-dialog")) $("#confirm-delete-dialog").close();
   });
+  $("#confirm-wrapup-cancel").addEventListener("click", () => $("#confirm-wrapup-dialog").close());
+  $("#confirm-wrapup-ok").addEventListener("click", () => {
+    $("#confirm-wrapup-dialog").close();
+    wrapUpSession();
+  });
+  $("#confirm-wrapup-dialog").addEventListener("click", (event) => {
+    if (event.target === $("#confirm-wrapup-dialog")) $("#confirm-wrapup-dialog").close();
+  });
 
   $("#alltime-standings").addEventListener("click", (event) => {
     const row = event.target.closest("[data-player-id]");
@@ -1100,7 +1120,7 @@
 
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
-    const nativeDialogOpen = ["confirm-delete-dialog", "view-match-dialog", "result-dialog", "next-match-dialog"]
+    const nativeDialogOpen = ["confirm-delete-dialog", "confirm-wrapup-dialog", "view-match-dialog", "result-dialog", "next-match-dialog"]
       .some((dialogId) => document.getElementById(dialogId)?.open);
     if (nativeDialogOpen) return;
     if (!$("#player-modal").hidden) closePlayerModal();
@@ -1186,4 +1206,14 @@
   renderStandings();
   renderSessions();
   renderAllTime();
+
+  const brandMark = $(".brand-mark");
+  if (brandMark) {
+    brandMark.classList.add("spin");
+    brandMark.addEventListener("animationend", function handleBrandSpin(event) {
+      if (event.animationName !== "brand-spin") return;
+      brandMark.classList.remove("spin");
+      brandMark.removeEventListener("animationend", handleBrandSpin);
+    });
+  }
 })();

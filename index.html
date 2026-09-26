@@ -159,7 +159,7 @@
                 <div><span class="step-label">03 / LEADERBOARD</span><h2>Standings</h2></div>
                 <span class="trophy-mark" aria-hidden="true">✳</span>
               </div>
-              <p class="standings-note">Ranked by win rate across finalized matches.</p>
+              <p class="standings-note" id="standings-note">Ranked by win rate across finalized matches.</p>
               <div class="standings-head" id="live-head"><span>PLAYER</span><span>W—L</span><span>WIN %</span></div>
               <div class="standings-list" id="standings-list"></div>
               <div class="standings-foot" id="live-foot"><span class="live-dot"></span> UPDATED AFTER EACH MATCH</div>
@@ -321,6 +321,16 @@
       <div class="dialog-actions">
         <button class="primary-button ghost" id="confirm-delete-cancel" type="button">Cancel</button>
         <button class="primary-button danger" id="confirm-delete-ok" type="button">Delete</button>
+      </div>
+    </dialog>
+
+    <dialog class="view-dialog confirm-dialog" id="confirm-wrapup-dialog" aria-labelledby="confirm-wrapup-title">
+      <p class="eyebrow">WRAP UP DAY</p>
+      <h2 id="confirm-wrapup-title">Wrap up this day?</h2>
+      <p class="confirm-text" id="confirm-wrapup-text"></p>
+      <div class="dialog-actions">
+        <button class="primary-button ghost" id="confirm-wrapup-cancel" type="button">Cancel</button>
+        <button class="primary-button" id="confirm-wrapup-ok" type="button">Wrap up</button>
       </div>
     </dialog>
     <script src="app.js" defer></script>

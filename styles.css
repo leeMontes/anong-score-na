@@ -50,6 +50,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .brand-name { font-size: 22px; }
 .brand-period { color: var(--accent); }
 .brand-mark { width: 26px; height: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 3px; transform: rotate(-8deg); }
+.brand:hover .brand-mark, .brand-mark.spin { animation: brand-spin .75s cubic-bezier(.22, .61, .36, 1); }
 .brand-mark span { background: var(--accent); border-radius: 5px; }
 .brand-mark span:nth-child(2), .brand-mark span:nth-child(3) { opacity: .45; }
 .main-nav { display: flex; align-items: stretch; align-self: stretch; gap: 24px; }
@@ -468,6 +469,7 @@ body.fullscreen-mode .score-actions { display: none; }
 
 /* Load animations */
 @keyframes slide-up { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes brand-spin { from { transform: rotate(-8deg); } to { transform: rotate(352deg); } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fade-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .brand { animation: slide-up .55s cubic-bezier(.22, .61, .36, 1) both; }
